@@ -10,12 +10,13 @@ import CardMedia from '@mui/material/CardMedia';
 import Grid from '@mui/material/Grid';
 import { BoardGamesContext } from '../../../../context/BoardGameContext'
 import { AuthContext } from '../../../../context/AuthContext';
-import { SortBySelectBox, CategorySelect } from './components'
+import { SortBySelectBox, CategorySelect, DetailsPopup } from './components'
+import { fetchReviews } from '../../../../firebase/api/Reviews';
 
 const Gamegrid = () => {
   const { boardGames, setBoardGames } = useContext(BoardGamesContext);
   const [clickedBoardGame, setClickedBoardGame] = useState([]);
-  const [reviewData, setReviewData] = useState(null); // State to hold the fetched review data
+  const [reviewData, setReviewData] = useState(null);
   const { token, uid } = useContext(AuthContext);
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -23,7 +24,13 @@ const Gamegrid = () => {
   console.log(boardGames)
 
   const handleButtonClick = async (itemId) => {
-    console.log('buttonClicked')
+    try {
+      const reviews = await fetchReviews(+itemId, uid);
+      setReviewData(reviews);
+    } catch (error) {
+      setReviewData([]);
+      console.error('Failed to fetch reviews:', error);
+    }
   };
 
   return (
@@ -138,6 +145,14 @@ const Gamegrid = () => {
             </Grid> : null
         ))}
       </Grid>
+      {open ? (
+        <DetailsPopup
+          open={open}
+          onClose={() => setOpen(false)}
+          data={clickedBoardGame}
+          reviewData={reviewData} // Pass the fetched review data to the ProductDialog component
+        />
+      ) : null}
     </Box>
   );
 };

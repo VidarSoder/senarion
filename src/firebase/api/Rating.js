@@ -1,44 +1,33 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from '../firebase';
 
+// Function to execute a Firestore query and return the documents
+const fetchDocs = async (collectionName, itemId) => {
+    const collectionRef = collection(db, collectionName);
+    const dataQuery = query(collectionRef, where('itemId', '==', itemId));
+    const dataSnapshot = await getDocs(dataQuery);
+    return dataSnapshot.docs.map(doc => doc.data());
+};
+
+// Function to calculate an average from an array of numbers
+const calculateAverage = (numbers) => {
+    const total = numbers.reduce((sum, number) => sum + number, 0);
+    return numbers.length ? total / numbers.length : 0;
+};
+
 // This function fetches the average rating, the number of owners, and the average playtime for a game
 export const fetchUserRatings = async (gameId) => {
-    let averageRating = 0;
-    let owners = 0;
-    let averagePlaytime = 0;
-
-    // Fetch all reviews for the game
-    const reviewsRef = collection(db, 'reviews');
-    const reviewQuery = query(reviewsRef, where('itemId', '==', gameId));
-    const reviewSnapshot = await getDocs(reviewQuery);
+    const reviews = await fetchDocs('reviews', gameId);
+    const playtimes = await fetchDocs('playtime', gameId);
 
     // Calculate average rating and number of owners
-    if (!reviewSnapshot.empty) {
-        let totalRating = 0;
-        reviewSnapshot.forEach((doc) => {
-            const review = doc.data();
-            totalRating += review.rating;
-            if (review.owned) {
-                owners += 1;
-            }
-        });
-        averageRating = Math.round(totalRating / reviewSnapshot.size);
-    }
-
-    // Fetch all playtimes for the game
-    const playtimesRef = collection(db, 'playtime');
-    const playtimeQuery = query(playtimesRef, where('itemId', '==', gameId));
-    const playtimeSnapshot = await getDocs(playtimeQuery);
+    const ratings = reviews.map(review => review.rating);
+    const averageRating = calculateAverage(ratings);
+    const owners = reviews.filter(review => review.owned).length;
 
     // Calculate average playtime
-    if (!playtimeSnapshot.empty) {
-        let totalPlaytime = 0;
-        playtimeSnapshot.forEach((doc) => {
-            const playtime = doc.data();
-            totalPlaytime += parseInt(playtime.playtime, 10);
-        });
-        averagePlaytime = totalPlaytime / playtimeSnapshot.size;
-    }
+    const playtimesInNumbers = playtimes.map(playtime => parseInt(playtime.playtime, 10));
+    const averagePlaytime = calculateAverage(playtimesInNumbers);
 
     return {
         averageRating,
