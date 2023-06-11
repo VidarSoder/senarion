@@ -14,14 +14,12 @@ import { SortBySelectBox, CategorySelect, DetailsPopup } from './components'
 import { fetchReviews } from '../../../../firebase/api/Reviews';
 
 const Gamegrid = () => {
-  const { boardGames, setBoardGames } = useContext(BoardGamesContext);
+  const { boardGames } = useContext(BoardGamesContext);
   const [clickedBoardGame, setClickedBoardGame] = useState([]);
   const [reviewData, setReviewData] = useState(null);
-  const { token, uid } = useContext(AuthContext);
+  const { uid } = useContext(AuthContext);
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-
-  console.log(boardGames)
 
   const handleButtonClick = async (itemId) => {
     try {
