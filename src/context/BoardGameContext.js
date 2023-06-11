@@ -9,17 +9,24 @@ export const BoardGamesProvider = ({ children }) => {
     const [boardGames, setBoardGames] = useState([]);
 
     useEffect(() => {
-        fetch("http://example.com/api/boardgames")
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    setBoardGames(result);
-                },
-                (error) => {
-                    console.log("Failed to fetch data from API, using local data instead.");
-                    setBoardGames(boardgamesData);
+        const API_ENDPOINT = "http://localhost:3002/api/boardgames";
+        fetch(API_ENDPOINT)
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    console.log('Failed to fetch data from the API, using local data instead.');
+                    throw new Error('API request failed');
                 }
-            )
+            })
+            .then((result) => {
+                setBoardGames(result);
+            })
+            .catch((error) => {
+                console.log(error);
+                // Use local data instead
+                setBoardGames(boardgamesData);
+            });
     }, []);
 
     const groupByItemId = (data) => {
