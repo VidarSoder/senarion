@@ -12,8 +12,10 @@ const fetchDocs = async (collectionName, itemId) => {
 // Function to calculate an average from an array of numbers
 const calculateAverage = (numbers) => {
     const total = numbers.reduce((sum, number) => sum + number, 0);
-    return numbers.length ? total / numbers.length : 0;
+    const average = numbers.length ? total / numbers.length : 0;
+    return parseFloat(average.toFixed(2));
 };
+
 
 // This function fetches the average rating, the number of owners, and the average playtime for a game
 export const fetchUserRatings = async (gameId) => {
