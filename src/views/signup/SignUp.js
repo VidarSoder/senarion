@@ -1,6 +1,6 @@
 import React from 'react';
 import Box from '@mui/material/Box';
-
+import Paper from '@mui/material/Paper';
 import Container from '../../components/Container'
 import { Form } from './components';
 
@@ -14,9 +14,12 @@ const SignUp = () => {
         justifyContent={'center'}
         height={1}
       >
-        <Container sx={{ maxWidth: 800 }}>
-          <Form />
-        </Container>
+        <Paper elevation={4} sx={{ backgroundColor: '#f5f5f5', padding: 4, borderRadius: 2 }}>
+
+          <Container sx={{ maxWidth: 800 }}>
+            <Form />
+          </Container>
+        </Paper>
       </Box>
     </Container>
   );
