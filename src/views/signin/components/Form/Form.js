@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../../context/AuthContext';
 import { Box, Grid, TextField, Button, Typography, Link } from '@mui/material';
 
-const SigninField = ({ label, name, value, type = 'text', onChange }) => (
+const SigninField = ({ label, name, value, type = 'text', onChange, error }) => (
   <Grid item xs={12}>
     <Typography variant={'subtitle2'} sx={{ marginBottom: 2 }}>Enter your {label.toLowerCase()}</Typography>
-    <TextField label={`${label} *`} variant="outlined" name={name} type={type} fullWidth value={value} onChange={onChange} />
+    <TextField label={`${label} *`} variant="outlined" name={name} type={type} fullWidth value={value} onChange={onChange} error={error} />
+    {error && <Typography variant="caption" color="error">Please enter your {label.toLowerCase()}.</Typography>}
   </Grid>
 );
 
@@ -15,16 +16,37 @@ const SigninForm = () => {
   const { login } = useContext(AuthContext);
 
   const [state, setState] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ email: false, password: false });
 
   const handleChange = (e) => {
     setState((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
     }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [e.target.name]: false,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (state.email === '') {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        email: true,
+      }));
+      return;
+    }
+
+    if (state.password === '') {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password: true,
+      }));
+      return;
+    }
 
     try {
       await login(state.email, state.password);
@@ -49,6 +71,7 @@ const SigninForm = () => {
               value={state[key]}
               type={key === 'password' ? 'password' : 'text'}
               onChange={handleChange}
+              error={errors[key]}
             />
           ))}
           <Grid item container xs={12}>

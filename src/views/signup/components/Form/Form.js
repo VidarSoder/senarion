@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../../context/AuthContext';
 import { Box, Grid, TextField, Button, Typography, Link } from '@mui/material';
 
-const FormField = ({ label, name, value, type = 'text', onChange }) => (
+const FormField = ({ label, name, value, type = 'text', onChange, error }) => (
   <Grid item xs={12} sm={name === 'firstName' || name === 'lastName' ? 6 : 12}>
     <Typography variant={'subtitle2'} sx={{ marginBottom: 2 }}>
       Enter your {label.toLowerCase()}
@@ -16,7 +16,9 @@ const FormField = ({ label, name, value, type = 'text', onChange }) => (
       fullWidth
       value={value}
       onChange={onChange}
+      error={error}
     />
+    {error && <Typography variant="caption" color="error">Please enter your {label.toLowerCase()}.</Typography>}
   </Grid>
 );
 
@@ -30,19 +32,71 @@ const Form = () => {
     email: '',
     password: '',
   });
+  const [errors, setErrors] = useState({
+    firstName: false,
+    lastName: false,
+    bio: false,
+    email: false,
+    password: false,
+  });
 
   const handleChange = (e) => {
     setState((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
     }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [e.target.name]: false,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const { firstName, lastName, bio, email, password } = state;
+
+    if (firstName === '') {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        firstName: true,
+      }));
+      return;
+    }
+
+    if (lastName === '') {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        lastName: true,
+      }));
+      return;
+    }
+
+    if (bio === '') {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        bio: true,
+      }));
+      return;
+    }
+
+    if (email === '') {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        email: true,
+      }));
+      return;
+    }
+
+    if (password === '') {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password: true,
+      }));
+      return;
+    }
+
     try {
-      const { firstName, lastName, bio, email, password } = state;
       await signUp(firstName, lastName, bio, email, password);
       navigate('/signin');
     } catch {
@@ -66,6 +120,7 @@ const Form = () => {
               value={state[key]}
               type={key === 'password' ? 'password' : 'text'}
               onChange={handleChange}
+              error={errors[key]}
             />
           ))}
           <Grid item container xs={12}>
